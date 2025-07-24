@@ -1,7 +1,7 @@
 streamlit
 transformers
 torch
-git+https://github.com/yt-dlp/yt-dlp.git
+yt-dlp==2023.12.30
 openai-whisper
 pydub
 ffmpeg-python

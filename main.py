@@ -2,7 +2,7 @@ import os
 import json
 import wave
 import streamlit as st
-import youtube_dl as yt_dlp
+import yt_dlp
 import whisper
 import torch
 from pydub import AudioSegment

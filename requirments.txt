@@ -1,7 +1,7 @@
 streamlit
 transformers
 torch
-yt-dlp
+yt_dlp
 openai-whisper
 pydub
-ffmpeg-python
+

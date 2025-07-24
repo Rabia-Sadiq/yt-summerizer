@@ -2,70 +2,82 @@ import streamlit as st
 import tempfile
 import os
 
+st.title("🎬 YouTube Download Test")
 
-# Simple text summarizer using basic NLP
-def simple_summarize(text, max_sentences=3):
-    """Simple extractive summarization"""
-    if not text.strip():
-        return "No content to summarize."
+# Test different YouTube downloaders
+st.subheader("Testing YouTube Download Methods")
 
-    sentences = text.split('.')
-    sentences = [s.strip() for s in sentences if len(s.strip()) > 10]
+test_url = st.text_input("Enter a YouTube URL to test:", value="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
-    if len(sentences) <= max_sentences:
-        return text
+if st.button("Test Download Methods"):
+    if test_url:
+        results = {}
 
-    # Return first few sentences as summary
-    summary_sentences = sentences[:max_sentences]
-    return '. '.join(summary_sentences) + '.'
+        # Test 1: pytube
+        st.write("Testing pytube...")
+        try:
+            from pytube import YouTube
 
+            yt = YouTube(test_url)
+            title = yt.title
+            results["pytube"] = f"✅ Success - Title: {title}"
+        except Exception as e:
+            results["pytube"] = f"❌ Failed: {str(e)}"
 
-# Streamlit App
-st.title("🎵 Audio File Processor")
-st.markdown(
-    "**Note:** This is a simplified version. Upload your audio file and manually enter transcript for summarization.")
+        # Test 2: yt-dlp
+        st.write("Testing yt-dlp...")
+        try:
+            import yt_dlp
 
-# File upload
-uploaded_file = st.file_uploader("Choose an audio file", type=['mp3', 'wav', 'mp4', 'm4a'])
+            ydl_opts = {'quiet': True}
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(test_url, download=False)
+                title = info.get('title', 'Unknown')
+            results["yt-dlp"] = f"✅ Success - Title: {title}"
+        except Exception as e:
+            results["yt-dlp"] = f"❌ Failed: {str(e)}"
 
-if uploaded_file:
-    st.success(f"✅ File uploaded: {uploaded_file.name}")
+        # Test 3: youtube-dl
+        st.write("Testing youtube-dl...")
+        try:
+            import youtube_dl
 
-    # Audio player
-    st.audio(uploaded_file)
+            ydl_opts = {'quiet': True}
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(test_url, download=False)
+                title = info.get('title', 'Unknown')
+            results["youtube-dl"] = f"✅ Success - Title: {title}"
+        except Exception as e:
+            results["youtube-dl"] = f"❌ Failed: {str(e)}"
 
-    st.markdown("---")
+        # Display results
+        st.subheader("Results:")
+        for method, result in results.items():
+            if "✅" in result:
+                st.success(f"{method}: {result}")
+            else:
+                st.error(f"{method}: {result}")
 
-    # Manual transcript input (since whisper isn't working)
-    st.subheader("📝 Enter Transcript")
-    transcript = st.text_area(
-        "Paste or type the transcript of your audio:",
-        height=200,
-        placeholder="Enter the transcript here..."
-    )
-
-    if st.button("Generate Summary"):
-        if transcript.strip():
-            with st.spinner("Generating summary..."):
-                try:
-                    # Simple summarization
-                    summary = simple_summarize(transcript, max_sentences=3)
-
-                    st.subheader("📝 Summary")
-                    st.success(summary)
-
-                    with st.expander("📃 Full Transcript"):
-                        st.download_button("📥 Download Transcript", transcript, file_name="transcript.txt")
-                        st.text_area("Full Transcript", transcript, height=150)
-
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
+        # Recommend next steps
+        working_methods = [method for method, result in results.items() if "✅" in result]
+        if working_methods:
+            st.success(f"🎉 Working methods: {', '.join(working_methods)}")
+            st.info("We can use any of these for your YouTube summarizer!")
         else:
-            st.warning("Please enter a transcript to summarize.")
+            st.error("❌ No YouTube downloaders are working. We'll need to use file upload instead.")
+
+# Test requirements.txt for this
+st.subheader("📋 Requirements to test:")
+st.code("""
+streamlit
+pytube
+yt-dlp
+youtube-dl
+""")
 
 st.markdown("---")
 st.markdown("**Instructions:**")
-st.markdown("1. Upload your audio file")
-st.markdown("2. Listen to it using the audio player")
-st.markdown("3. Enter the transcript manually")
-st.markdown("4. Click 'Generate Summary' to get a summary")
+st.markdown("1. Update your requirements.txt with the packages above")
+st.markdown("2. Let the app redeploy")
+st.markdown("3. Run this test to see which YouTube downloader works")
+st.markdown("4. We'll build your summarizer using the working method!")

@@ -1,7 +1,7 @@
 streamlit
 transformers
 torch
-yt-dlp==2023.12.30
+youtube-dl
 openai-whisper
 pydub
 ffmpeg-python
